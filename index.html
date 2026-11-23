@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecureScope — Web Application Security Analysis & Risk Assessment</title>
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Application Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme">
+
+  <div class="app-container">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-logo">
+          <div class="logo-icon">SS</div>
+          <div class="logo-text">
+            <span class="brand-name">SecureScope</span>
+            <span class="brand-tag">SECURITY ANALYZER</span>
+          </div>
+        </div>
+        <button class="mobile-close-btn" id="mobile-close-btn" aria-label="Close menu">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <ul>
+          <li>
+            <a href="#dashboard" class="nav-link active" data-view="dashboard">
+              <i class="fa-solid fa-chart-pie nav-icon"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#new-analysis" class="nav-link" data-view="new-analysis">
+              <i class="fa-solid fa-shield-halved nav-icon"></i>
+              <span>New Analysis</span>
+            </a>
+          </li>
+          <li>
+            <a href="#scan-history" class="nav-link" data-view="scan-history">
+              <i class="fa-solid fa-clock-rotate-left nav-icon"></i>
+              <span>Scan History</span>
+            </a>
+          </li>
+          <li>
+            <a href="#vulnerabilities" class="nav-link" data-view="vulnerabilities">
+              <i class="fa-solid fa-bug nav-icon"></i>
+              <span>Vulnerabilities</span>
+              <span class="badge badge-count" id="nav-vuln-count">47</span>
+            </a>
+          </li>
+          <li>
+            <a href="#risk-assessment" class="nav-link" data-view="risk-assessment">
+              <i class="fa-solid fa-triangle-exclamation nav-icon"></i>
+              <span>Risk Assessment</span>
+            </a>
+          </li>
+          <li>
+            <a href="#reports" class="nav-link" data-view="reports">
+              <i class="fa-solid fa-file-contract nav-icon"></i>
+              <span>Reports</span>
+            </a>
+          </li>
+          <li>
+            <a href="#test-applications" class="nav-link" data-view="test-applications">
+              <i class="fa-solid fa-cubes nav-icon"></i>
+              <span>Test Applications</span>
+            </a>
+          </li>
+          <li>
+            <a href="#settings" class="nav-link" data-view="settings">
+              <i class="fa-solid fa-sliders nav-icon"></i>
+              <span>Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="prototype-status-pill">
+          <span class="status-dot pulsing"></span>
+          <span class="status-label">● Prototype Mode</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN WRAPPER -->
+    <div class="main-wrapper">
+      
+      <!-- TOP NAVBAR -->
+      <header class="top-navbar">
+        <div class="navbar-left">
+          <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Navigation">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="page-breadcrumb">
+            <span class="breadcrumb-item" id="navbar-title">Security Analysis Dashboard</span>
+          </div>
+        </div>
+
+        <div class="navbar-right">
+          <!-- Global Search -->
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="global-search-input" placeholder="Search vulnerabilities, applications..." aria-label="Global Search">
+            <div class="search-dropdown hidden" id="search-dropdown">
+              <div class="search-results" id="search-results-list"></div>
+            </div>
+          </div>
+
+          <!-- Notification Menu -->
+          <div class="nav-item-dropdown-container">
+            <button class="icon-btn" id="notif-btn" title="Notifications" aria-label="Notifications">
+              <i class="fa-regular fa-bell"></i>
+              <span class="notif-badge">3</span>
+            </button>
+            <div class="dropdown-menu notif-dropdown hidden" id="notif-dropdown">
+              <div class="dropdown-header">
+                <h3>Notifications</h3>
+                <span class="mark-read-btn" id="mark-read-btn">Mark all read</span>
+              </div>
+              <div class="notif-list">
+                <div class="notif-item unread">
+                  <div class="notif-icon critical"><i class="fa-solid fa-skull-crossbones"></i></div>
+                  <div class="notif-body">
+                    <p class="notif-title">Critical Finding Detected</p>
+                    <p class="notif-sub">Injection Indicator in TestBank</p>
+                    <span class="notif-time">10 mins ago</span>
+                  </div>
+                </div>
+                <div class="notif-item unread">
+                  <div class="notif-icon success"><i class="fa-solid fa-circle-check"></i></div>
+                  <div class="notif-body">
+                    <p class="notif-title">Analysis Completed</p>
+                    <p class="notif-sub">DemoShop scan completed with score 72/100</p>
+                    <span class="notif-time">1 hour ago</span>
+                  </div>
+                </div>
+                <div class="notif-item">
+                  <div class="notif-icon info"><i class="fa-solid fa-circle-info"></i></div>
+                  <div class="notif-body">
+                    <p class="notif-title">System Ready</p>
+                    <p class="notif-sub">Prototype mode initialized with demo targets</p>
+                    <span class="notif-time">2 hours ago</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Profile Dropdown -->
+          <div class="nav-item-dropdown-container">
+            <button class="profile-btn" id="profile-btn">
+              <div class="avatar">SA</div>
+              <div class="profile-meta">
+                <span class="user-name">Security Analyst</span>
+                <span class="user-role">SOC Tier 2</span>
+              </div>
+              <i class="fa-solid fa-chevron-down arrow-icon"></i>
+            </button>
+            <div class="dropdown-menu profile-dropdown hidden" id="profile-dropdown">
+              <div class="profile-dropdown-header">
+                <div class="avatar lg">SA</div>
+                <div>
+                  <div class="name">Security Analyst</div>
+                  <div class="email">analyst@securescope.local</div>
+                </div>
+              </div>
+              <hr class="dropdown-divider">
+              <a href="#settings" class="dropdown-item nav-link" data-view="settings">
+                <i class="fa-solid fa-user-gear"></i> Account Settings
+              </a>
+              <a href="#settings" class="dropdown-item nav-link" data-view="settings">
+                <i class="fa-solid fa-sliders"></i> System Preferences
+              </a>
+              <hr class="dropdown-divider">
+              <div class="dropdown-item text-muted">
+                <i class="fa-solid fa-shield-cat"></i> Role: Authorized Auditor
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- CONTENT AREA -->
+      <main class="content-container">
+        
+        <!-- VIEW 1: DASHBOARD -->
+        <section id="dashboard" class="view-section active">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Security Overview</h1>
+              <p class="view-subtitle">Monitor web application security analysis and risk findings.</p>
+            </div>
+            <button class="btn btn-primary" onclick="app.switchView('new-analysis')">
+              <i class="fa-solid fa-plus"></i> New Analysis
+            </button>
+          </div>
+
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon-wrapper cyan">
+                <i class="fa-solid fa-globe"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-label">Applications Analyzed</span>
+                <span class="stat-value" id="stat-apps">12</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon-wrapper blue">
+                <i class="fa-solid fa-bug"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-label">Total Findings</span>
+                <span class="stat-value" id="stat-findings">47</span>
+              </div>
+            </div>
+            <div class="stat-card border-critical">
+              <div class="stat-icon-wrapper critical">
+                <i class="fa-solid fa-skull-crossbones"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-label">Critical</span>
+                <span class="stat-value text-critical" id="stat-critical">3</span>
+              </div>
+            </div>
+            <div class="stat-card border-high">
+              <div class="stat-icon-wrapper high">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-label">High</span>
+                <span class="stat-value text-high" id="stat-high">8</span>
+              </div>
+            </div>
+            <div class="stat-card border-medium">
+              <div class="stat-icon-wrapper medium">
+                <i class="fa-solid fa-circle-exclamation"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-label">Medium</span>
+                <span class="stat-value text-medium" id="stat-medium">19</span>
+              </div>
+            </div>
+            <div class="stat-card border-low">
+              <div class="stat-icon-wrapper low">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-label">Low</span>
+                <span class="stat-value text-low" id="stat-low">17</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Charts Section -->
+          <div class="dashboard-grid">
+            
+            <!-- Risk Overview Card -->
+            <div class="card risk-card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <h3 class="card-title">Risk Overview</h3>
+                  <span class="badge badge-demo">Demo Data</span>
+                </div>
+                <div class="risk-badge-pill badge-high">HIGH RISK</div>
+              </div>
+              <div class="card-body risk-card-body">
+                <div class="score-display">
+                  <div class="score-circle-container">
+                    <canvas id="riskDoughnutChart" width="140" height="140"></canvas>
+                    <div class="score-center-text">
+                      <span class="score-num">72</span>
+                      <span class="score-denom">/ 100</span>
+                    </div>
+                  </div>
+                  <div class="score-meta">
+                    <div class="score-label-title">Overall Risk Score</div>
+                    <div class="score-desc">Calculated based on 47 identified findings across 12 targets.</div>
+                  </div>
+                </div>
+
+                <div class="severity-breakdown-legend">
+                  <div class="legend-item">
+                    <span class="legend-dot critical"></span>
+                    <span class="legend-label">Critical</span>
+                    <span class="legend-value">3</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-dot high"></span>
+                    <span class="legend-label">High</span>
+                    <span class="legend-value">8</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-dot medium"></span>
+                    <span class="legend-label">Medium</span>
+                    <span class="legend-value">19</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-dot low"></span>
+                    <span class="legend-label">Low</span>
+                    <span class="legend-value">17</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Findings Trend Card -->
+            <div class="card trend-card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">Security Findings Trend</h3>
+                  <p class="card-subtitle">Mock weekly detection metrics</p>
+                </div>
+                <div class="trend-badge">
+                  <i class="fa-solid fa-arrow-trend-down text-low"></i> 30% reduction from peak
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="chart-container">
+                  <canvas id="findingsTrendChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Recent Analyses Table Card -->
+          <div class="card mt-6">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Recent Analyses</h3>
+                <p class="card-subtitle">Overview of recently executed application scans</p>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="app.switchView('scan-history')">
+                View All Scans
+              </button>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Application</th>
+                      <th>Target</th>
+                      <th>Findings</th>
+                      <th>Risk</th>
+                      <th>Status</th>
+                      <th class="text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recent-analyses-tbody">
+                    <!-- Populated dynamically by app.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- VIEW 2: NEW ANALYSIS -->
+        <section id="new-analysis" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">New Security Analysis</h1>
+              <p class="view-subtitle">Configure and launch a simulated web application vulnerability scan.</p>
+            </div>
+          </div>
+
+          <!-- SCAN FORM VIEW -->
+          <div id="analysis-form-container" class="form-container">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fa-solid fa-sliders text-cyan me-2"></i> Analysis Configuration</h3>
+              </div>
+              <div class="card-body">
+                
+                <div class="warning-banner">
+                  <i class="fa-solid fa-shield-triangle-exclamation warning-icon"></i>
+                  <div>
+                    <strong>Authorization Notice</strong>
+                    <p>Only analyze applications you are authorized to test.</p>
+                  </div>
+                </div>
+
+                <form id="new-analysis-form" onsubmit="app.handleStartAnalysis(event)">
+                  
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label for="app-name">Application Name <span class="required">*</span></label>
+                      <input type="text" id="app-name" class="form-control" placeholder="Enter application name" required>
+                      <small class="form-text">e.g. DemoShop, PaymentGateway, InternalPortal</small>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="target-url">Target URL <span class="required">*</span></label>
+                      <input type="text" id="target-url" class="form-control" placeholder="https://demo-application.local" required>
+                      <small class="form-text">e.g. https://demo-shop.local or http://localhost:8080</small>
+                    </div>
+                  </div>
+
+                  <div class="form-group mt-4">
+                    <label for="analysis-profile">Analysis Profile <span class="required">*</span></label>
+                    <select id="analysis-profile" class="form-control" required>
+                      <option value="Quick Assessment">Quick Assessment</option>
+                      <option value="Standard Security Analysis" selected>Standard Security Analysis</option>
+                      <option value="Comprehensive Assessment">Comprehensive Assessment</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group mt-4">
+                    <label class="mb-2">Security Checks</label>
+                    <div class="checkbox-grid">
+                      <label class="custom-checkbox-card">
+                        <input type="checkbox" name="security_checks" value="XSS Detection" checked>
+                        <span class="checkbox-box"></span>
+                        <div class="checkbox-info">
+                          <span class="title">XSS Detection</span>
+                          <span class="desc">Reflected & stored cross-site scripting indicators</span>
+                        </div>
+                      </label>
+
+                      <label class="custom-checkbox-card">
+                        <input type="checkbox" name="security_checks" value="Injection Indicators" checked>
+                        <span class="checkbox-box"></span>
+                        <div class="checkbox-info">
+                          <span class="title">Injection Indicators</span>
+                          <span class="desc">SQL, Command & LDAP injection vulnerabilities</span>
+                        </div>
+                      </label>
+
+                      <label class="custom-checkbox-card">
+                        <input type="checkbox" name="security_checks" value="Access-Control Checks" checked>
+                        <span class="checkbox-box"></span>
+                        <div class="checkbox-info">
+                          <span class="title">Access-Control Checks</span>
+                          <span class="desc">Bypass checks, IDOR & privilege escalation</span>
+                        </div>
+                      </label>
+
+                      <label class="custom-checkbox-card">
+                        <input type="checkbox" name="security_checks" value="Security Headers" checked>
+                        <span class="checkbox-box"></span>
+                        <div class="checkbox-info">
+                          <span class="title">Security Headers</span>
+                          <span class="desc">CSP, HSTS, X-Frame-Options audit</span>
+                        </div>
+                      </label>
+
+                      <label class="custom-checkbox-card">
+                        <input type="checkbox" name="security_checks" value="Input Validation" checked>
+                        <span class="checkbox-box"></span>
+                        <div class="checkbox-info">
+                          <span class="title">Input Validation</span>
+                          <span class="desc">Sanitization, boundary checks & type safety</span>
+                        </div>
+                      </label>
+
+                      <label class="custom-checkbox-card">
+                        <input type="checkbox" name="security_checks" value="Configuration Review" checked>
+                        <span class="checkbox-box"></span>
+                        <div class="checkbox-info">
+                          <span class="title">Configuration Review</span>
+                          <span class="desc">Server misconfigurations & exposed metadata</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="form-actions mt-6">
+                    <button type="button" class="btn btn-outline" onclick="app.resetForm()">Reset</button>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                      <i class="fa-solid fa-play"></i> Start Analysis
+                    </button>
+                  </div>
+
+                </form>
+
+              </div>
+            </div>
+          </div>
+
+
+          <!-- SIMULATED SCAN PROGRESS VIEW (Hidden by default) -->
+          <div id="analysis-progress-container" class="progress-container hidden">
+            <div class="card text-center py-8">
+              <div class="scan-header-status">
+                <div class="scan-spinner-ring" id="scan-spinner">
+                  <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h2 class="scan-title" id="scan-status-heading">Security Analysis in Progress</h2>
+                <p class="scan-subtitle" id="scan-target-display">Analyzing https://demo-shop.local...</p>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="progress-wrapper">
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
+                </div>
+                <div class="progress-percent" id="progress-percent-text">0%</div>
+              </div>
+
+              <!-- Analysis Stages Checklist -->
+              <div class="stages-checklist">
+                <div class="stage-item pending" id="stage-1">
+                  <span class="stage-icon"><i class="fa-solid fa-circle"></i></span>
+                  <span class="stage-text">Target validation</span>
+                </div>
+                <div class="stage-item pending" id="stage-2">
+                  <span class="stage-icon"><i class="fa-solid fa-circle"></i></span>
+                  <span class="stage-text">Application discovery</span>
+                </div>
+                <div class="stage-item pending" id="stage-3">
+                  <span class="stage-icon"><i class="fa-solid fa-circle"></i></span>
+                  <span class="stage-text">Security checks</span>
+                </div>
+                <div class="stage-item pending" id="stage-4">
+                  <span class="stage-icon"><i class="fa-solid fa-circle"></i></span>
+                  <span class="stage-text">Risk classification</span>
+                </div>
+                <div class="stage-item pending" id="stage-5">
+                  <span class="stage-icon"><i class="fa-solid fa-circle"></i></span>
+                  <span class="stage-text">Report preparation</span>
+                </div>
+              </div>
+
+              <!-- Terminal Live Console Feed -->
+              <div class="terminal-box">
+                <div class="terminal-header">
+                  <span class="dot red"></span>
+                  <span class="dot yellow"></span>
+                  <span class="dot green"></span>
+                  <span class="terminal-title">SECURESCOPE ANALYZER LOG STREAM</span>
+                </div>
+                <div class="terminal-body" id="terminal-logs">
+                  <div class="log-line">[SYSTEM] Initializing simulation engine...</div>
+                </div>
+              </div>
+
+              <div class="progress-actions mt-6 hidden" id="scan-completed-actions">
+                <button class="btn btn-success btn-lg" onclick="app.viewScanResults()">
+                  <i class="fa-solid fa-square-poll-vertical"></i> View Results
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- VIEW 3: RESULTS PAGE -->
+        <section id="results" class="view-section">
+          <div class="view-header">
+            <div>
+              <div class="badge badge-demo mb-2">Security Analysis Results</div>
+              <h1 class="view-title">Security Analysis Results</h1>
+              <p class="view-subtitle" id="results-target-info">Target: demo-shop.local</p>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-outline" onclick="app.switchView('new-analysis')">
+                <i class="fa-solid fa-rotate"></i> New Scan
+              </button>
+              <button class="btn btn-primary" onclick="app.openReportPreview('DemoShop')">
+                <i class="fa-solid fa-file-pdf"></i> Generate Report
+              </button>
+            </div>
+          </div>
+
+          <!-- Summary Hero Banner -->
+          <div class="results-hero-card card">
+            <div class="results-hero-grid">
+              <div class="hero-target-meta">
+                <div class="meta-label">Application</div>
+                <div class="meta-value" id="res-app-name">DemoShop</div>
+                <div class="meta-sub" id="res-app-target">Target: <code>demo-shop.local</code></div>
+              </div>
+
+              <div class="hero-risk-meter">
+                <div class="risk-meter-label">Overall Risk Level</div>
+                <div class="risk-badge-large badge-high" id="res-risk-badge">HIGH</div>
+              </div>
+
+              <div class="hero-score-box">
+                <div class="meta-label">Risk Score</div>
+                <div class="score-large"><span id="res-score-num">72</span> <small>/ 100</small></div>
+              </div>
+
+              <div class="hero-finding-counters">
+                <div class="mini-count-pill critical">
+                  <span class="label">Critical</span>
+                  <span class="val" id="res-count-critical">2</span>
+                </div>
+                <div class="mini-count-pill high">
+                  <span class="label">High</span>
+                  <span class="val" id="res-count-high">4</span>
+                </div>
+                <div class="mini-count-pill medium">
+                  <span class="label">Medium</span>
+                  <span class="val" id="res-count-medium">5</span>
+                </div>
+                <div class="mini-count-pill low">
+                  <span class="label">Low</span>
+                  <span class="val" id="res-count-low">3</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Results Vulnerabilities Table -->
+          <div class="card mt-6">
+            <div class="card-header">
+              <h3 class="card-title">Identified Vulnerabilities</h3>
+              <p class="card-subtitle">Click any vulnerability row to inspect technical details and remediation guidance.</p>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Vulnerability</th>
+                      <th>Location</th>
+                      <th>Severity</th>
+                      <th>Confidence</th>
+                      <th>Status</th>
+                      <th class="text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="results-vuln-tbody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- VIEW 4: VULNERABILITIES PAGE -->
+        <section id="vulnerabilities" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Vulnerabilities</h1>
+              <p class="view-subtitle">Central database of security findings across all registered targets.</p>
+            </div>
+          </div>
+
+          <!-- Filters Bar -->
+          <div class="card filter-card mb-6">
+            <div class="filter-grid">
+              
+              <div class="filter-item search-filter">
+                <label for="vuln-search">Search Finding</label>
+                <div class="input-icon-wrapper">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input type="text" id="vuln-search" class="form-control" placeholder="Search by ID, name, endpoint..." oninput="app.applyVulnFilters()">
+                </div>
+              </div>
+
+              <div class="filter-item">
+                <label for="filter-severity">Severity</label>
+                <select id="filter-severity" class="form-control" onchange="app.applyVulnFilters()">
+                  <option value="ALL">All Severities</option>
+                  <option value="Critical">Critical</option>
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+              </div>
+
+              <div class="filter-item">
+                <label for="filter-status">Status</label>
+                <select id="filter-status" class="form-control" onchange="app.applyVulnFilters()">
+                  <option value="ALL">All Statuses</option>
+                  <option value="Open">Open</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Resolved">Resolved</option>
+                </select>
+              </div>
+
+              <div class="filter-item">
+                <label for="filter-type">Vulnerability Type</label>
+                <select id="filter-type" class="form-control" onchange="app.applyVulnFilters()">
+                  <option value="ALL">All Types</option>
+                  <option value="XSS">XSS / Cross-Site Scripting</option>
+                  <option value="Injection">Injection Indicators</option>
+                  <option value="Access-Control">Access-Control / IDOR</option>
+                  <option value="Header">Security Headers</option>
+                  <option value="Input Validation">Input Validation</option>
+                </select>
+              </div>
+
+              <div class="filter-item">
+                <label for="filter-app">Application</label>
+                <select id="filter-app" class="form-control" onchange="app.applyVulnFilters()">
+                  <option value="ALL">All Applications</option>
+                  <option value="DemoShop">DemoShop</option>
+                  <option value="SecurePortal">SecurePortal</option>
+                  <option value="StudentCMS">StudentCMS</option>
+                  <option value="TestBank">TestBank</option>
+                </select>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Vulnerabilities Table -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h3 class="card-title">All Findings (<span id="vuln-count-total">5</span>)</h3>
+              </div>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Vulnerability</th>
+                      <th>Application</th>
+                      <th>Location</th>
+                      <th>Severity</th>
+                      <th>Confidence</th>
+                      <th>Status</th>
+                      <th class="text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="vulnerabilities-tbody">
+                    <!-- Dynamic insertion -->
+                  </tbody>
+                </table>
+              </div>
+              <div id="vuln-empty-state" class="empty-state hidden">
+                <i class="fa-solid fa-shield-cat empty-icon"></i>
+                <h3>No vulnerabilities found</h3>
+                <p>Start a new authorized security analysis to see results here.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- VIEW 5: SCAN HISTORY PAGE -->
+        <section id="scan-history" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Scan History</h1>
+              <p class="view-subtitle">Audit log of all past security assessments and execution metadata.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Analysis History</h3>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Analysis ID</th>
+                      <th>Application</th>
+                      <th>Date</th>
+                      <th>Duration</th>
+                      <th>Findings</th>
+                      <th>Risk</th>
+                      <th>Status</th>
+                      <th class="text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="scan-history-tbody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- VIEW 6: RISK ASSESSMENT PAGE -->
+        <section id="risk-assessment" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Risk Assessment</h1>
+              <p class="view-subtitle">Comprehensive threat posture metrics and risk factor breakdown.</p>
+            </div>
+          </div>
+
+          <div class="risk-overview-grid">
+            
+            <!-- Risk Gauge Card -->
+            <div class="card text-center p-6">
+              <h3 class="card-title mb-4">Overall Risk Score</h3>
+              
+              <div class="score-box-large my-4">
+                <div class="huge-score-num">72 <small>/ 100</small></div>
+                <div class="risk-level-display mt-2">
+                  <span class="label">Risk Level:</span>
+                  <span class="badge badge-high lg">HIGH</span>
+                </div>
+              </div>
+              <p class="text-muted mt-2 small">Calculated using Weighted Severity Scoring</p>
+            </div>
+
+            <!-- Risk Distribution Card -->
+            <div class="card p-6">
+              <h3 class="card-title mb-4">Risk Distribution</h3>
+              <div class="distribution-bars">
+                <div class="dist-item mb-3">
+                  <div class="dist-header d-flex justify-content-between mb-1">
+                    <span class="text-critical"><i class="fa-solid fa-circle me-2"></i> Critical</span>
+                    <span class="val font-mono">3 (6.4%)</span>
+                  </div>
+                  <div class="progress-bar-bg"><div class="progress-bar-fill bg-critical" style="width: 6.4%;"></div></div>
+                </div>
+                <div class="dist-item mb-3">
+                  <div class="dist-header d-flex justify-content-between mb-1">
+                    <span class="text-high"><i class="fa-solid fa-circle me-2"></i> High</span>
+                    <span class="val font-mono">8 (17.0%)</span>
+                  </div>
+                  <div class="progress-bar-bg"><div class="progress-bar-fill bg-high" style="width: 17%;"></div></div>
+                </div>
+                <div class="dist-item mb-3">
+                  <div class="dist-header d-flex justify-content-between mb-1">
+                    <span class="text-medium"><i class="fa-solid fa-circle me-2"></i> Medium</span>
+                    <span class="val font-mono">19 (40.4%)</span>
+                  </div>
+                  <div class="progress-bar-bg"><div class="progress-bar-fill bg-medium" style="width: 40.4%;"></div></div>
+                </div>
+                <div class="dist-item mb-3">
+                  <div class="dist-header d-flex justify-content-between mb-1">
+                    <span class="text-low"><i class="fa-solid fa-circle me-2"></i> Low</span>
+                    <span class="val font-mono">17 (36.2%)</span>
+                  </div>
+                  <div class="progress-bar-bg"><div class="progress-bar-fill bg-low" style="width: 36.2%;"></div></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Risk Factors Grid -->
+          <div class="card mt-6">
+            <div class="card-header">
+              <h3 class="card-title">Risk Factors</h3>
+              <p class="card-subtitle">Key variables impacting application vulnerability score</p>
+            </div>
+            <div class="card-body">
+              <div class="risk-factors-grid">
+                
+                <div class="risk-factor-card">
+                  <div class="rf-header">
+                    <span class="rf-title">Vulnerability Severity</span>
+                    <span class="rf-value text-critical">85%</span>
+                  </div>
+                  <div class="progress-bar-bg"><div class="progress-bar-fill bg-critical" style="width: 85%;"></div></div>
+                  <p class="rf-desc mt-2 small text-muted">Density of XSS and Injection threats requiring immediate patching.</p>
+                </div>
+
+                <div class="risk-factor-card">
+                  <div class="rf-header">
+                    <span class="rf-title">Confidence</span>
+                    <span class="rf-value text-high">78%</span>
+                  </div>
+                  <div class="progress-bar-bg"><div class="progress-bar-fill bg-high" style="width: 78%;"></div></div>
+                  <p class="rf-desc mt-2 small text-muted">Algorithmic certainty based on response analysis.</p>
+                </div>
+
+                <div class="risk-factor-card">
+                  <div class="rf-header">
+                    <span class="rf-title">Potential Impact</span>
+                    <span class="rf-value text-high">70%</span>
+                  </div>
+                  <div class="progress-bar-bg"><div class="progress-bar-fill bg-high" style="width: 70%;"></div></div>
+                  <p class="rf-desc mt-2 small text-muted">Risk of session compromise or unauthenticated data exposure.</p>
+                </div>
+
+                <div class="risk-factor-card">
+                  <div class="rf-header">
+                    <span class="rf-title">Exposure Level</span>
+                    <span class="rf-value text-medium">60%</span>
+                  </div>
+                  <div class="progress-bar-bg"><div class="progress-bar-fill bg-medium" style="width: 60%;"></div></div>
+                  <p class="rf-desc mt-2 small text-muted">Publicly accessible endpoints identified on authentication interfaces.</p>
+                </div>
+
+                <div class="risk-factor-card">
+                  <div class="rf-header">
+                    <span class="rf-title">Affected Endpoints</span>
+                    <span class="rf-value text-low">45%</span>
+                  </div>
+                  <div class="progress-bar-bg"><div class="progress-bar-fill bg-low" style="width: 45%;"></div></div>
+                  <p class="rf-desc mt-2 small text-muted">Vulnerabilities concentrated on core application paths.</p>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- VIEW 7: REPORTS PAGE -->
+        <section id="reports" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Reports</h1>
+              <p class="view-subtitle">Generate exportable audit documentation and executive summaries.</p>
+            </div>
+          </div>
+
+          <div class="reports-grid">
+            
+            <!-- Report Card 1 -->
+            <div class="report-card card">
+              <div class="report-card-icon cyan">
+                <i class="fa-solid fa-briefcase"></i>
+              </div>
+              <h3 class="report-card-title">Executive Security Report</h3>
+              <p class="report-card-desc">High-level overview of overall risk posture, key statistics, and business impact summary suited for leadership.</p>
+              <div class="report-card-actions">
+                <button class="btn btn-outline" onclick="app.openReportPreview('Executive Security Report')">Preview</button>
+                <button class="btn btn-primary" onclick="app.generateMockReport('Executive Security Report')">Generate Report</button>
+              </div>
+            </div>
+
+            <!-- Report Card 2 -->
+            <div class="report-card card">
+              <div class="report-card-icon blue">
+                <i class="fa-solid fa-bug-slash"></i>
+              </div>
+              <h3 class="report-card-title">Vulnerability Report</h3>
+              <p class="report-card-desc">Deep technical document listing all identified flaws, locations, proof of indicators, and detailed developer remediation steps.</p>
+              <div class="report-card-actions">
+                <button class="btn btn-outline" onclick="app.openReportPreview('Vulnerability Report')">Preview</button>
+                <button class="btn btn-primary" onclick="app.generateMockReport('Vulnerability Report')">Generate Report</button>
+              </div>
+            </div>
+
+            <!-- Report Card 3 -->
+            <div class="report-card card">
+              <div class="report-card-icon orange">
+                <i class="fa-solid fa-chart-line"></i>
+              </div>
+              <h3 class="report-card-title">Risk Assessment Report</h3>
+              <p class="report-card-desc">Detailed risk scoring matrix, severity distribution analysis, factor breakdown, and compliance posture details.</p>
+              <div class="report-card-actions">
+                <button class="btn btn-outline" onclick="app.openReportPreview('Risk Assessment Report')">Preview</button>
+                <button class="btn btn-primary" onclick="app.generateMockReport('Risk Assessment Report')">Generate Report</button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+
+        <!-- VIEW 8: TEST APPLICATIONS PAGE -->
+        <section id="test-applications" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Test Applications</h1>
+              <p class="view-subtitle">Fictional demo applications pre-configured for sandbox testing.</p>
+            </div>
+            <span class="badge badge-demo"><i class="fa-solid fa-shield"></i> Safe Demo Application</span>
+          </div>
+
+          <div class="test-apps-grid">
+            
+            <div class="app-demo-card card">
+              <div class="app-card-header">
+                <div class="app-icon"><i class="fa-solid fa-cart-shopping"></i></div>
+                <span class="badge badge-high">High Risk</span>
+              </div>
+              <h3 class="app-title">DemoShop</h3>
+              <p class="app-type">E-commerce Demo</p>
+              <p class="app-desc">Simulated online retail store featuring checkout, search, and user profile functionality.</p>
+              <div class="app-meta mt-3">
+                <span>Target: <code>demo-shop.local</code></span>
+              </div>
+              <button class="btn btn-primary w-100 mt-4" onclick="app.quickScanTarget('DemoShop', 'https://demo-shop.local')">
+                <i class="fa-solid fa-bolt"></i> Quick Scan DemoShop
+              </button>
+            </div>
+
+            <div class="app-demo-card card">
+              <div class="app-card-header">
+                <div class="app-icon"><i class="fa-solid fa-lock"></i></div>
+                <span class="badge badge-medium">Medium Risk</span>
+              </div>
+              <h3 class="app-title">SecurePortal</h3>
+              <p class="app-type">Authentication Demo</p>
+              <p class="app-desc">Enterprise Single Sign-On and multi-factor authentication testing environment.</p>
+              <div class="app-meta mt-3">
+                <span>Target: <code>portal-demo.local</code></span>
+              </div>
+              <button class="btn btn-primary w-100 mt-4" onclick="app.quickScanTarget('SecurePortal', 'https://portal-demo.local')">
+                <i class="fa-solid fa-bolt"></i> Quick Scan SecurePortal
+              </button>
+            </div>
+
+            <div class="app-demo-card card">
+              <div class="app-card-header">
+                <div class="app-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                <span class="badge badge-low">Low Risk</span>
+              </div>
+              <h3 class="app-title">StudentCMS</h3>
+              <p class="app-type">Content Management Demo</p>
+              <p class="app-desc">Academic publishing system with article management and student portal endpoints.</p>
+              <div class="app-meta mt-3">
+                <span>Target: <code>cms-demo.local</code></span>
+              </div>
+              <button class="btn btn-primary w-100 mt-4" onclick="app.quickScanTarget('StudentCMS', 'https://cms-demo.local')">
+                <i class="fa-solid fa-bolt"></i> Quick Scan StudentCMS
+              </button>
+            </div>
+
+            <div class="app-demo-card card">
+              <div class="app-card-header">
+                <div class="app-icon"><i class="fa-solid fa-building-columns"></i></div>
+                <span class="badge badge-critical">Critical Risk</span>
+              </div>
+              <h3 class="app-title">TestBank</h3>
+              <p class="app-type">Banking Workflow Demo</p>
+              <p class="app-desc">Financial application simulation testing fund transfers, API auth, and session controls.</p>
+              <div class="app-meta mt-3">
+                <span>Target: <code>bank-demo.local</code></span>
+              </div>
+              <button class="btn btn-primary w-100 mt-4" onclick="app.quickScanTarget('TestBank', 'https://bank-demo.local')">
+                <i class="fa-solid fa-bolt"></i> Quick Scan TestBank
+              </button>
+            </div>
+
+          </div>
+        </section>
+
+
+        <!-- VIEW 9: SETTINGS PAGE -->
+        <section id="settings" class="view-section">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Settings</h1>
+              <p class="view-subtitle">Manage prototype preferences, scanner rules, and system information.</p>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Analysis Preferences</h3>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label for="set-default-profile">Default Analysis Profile</label>
+                  <select id="set-default-profile" class="form-control">
+                    <option value="Quick">Quick Assessment</option>
+                    <option value="Standard" selected>Standard Security Analysis</option>
+                    <option value="Comprehensive">Comprehensive Assessment</option>
+                  </select>
+                </div>
+
+                <div class="form-group mt-4">
+                  <label for="set-scan-mode">Default Scan Mode</label>
+                  <select id="set-scan-mode" class="form-control">
+                    <option value="Simulated" selected>Simulated Sandbox Mode</option>
+                    <option value="Passive">Passive Inspection Only</option>
+                  </select>
+                </div>
+
+                <div class="form-group mt-4">
+                  <label for="set-scoring">Risk Scoring Method</label>
+                  <select id="set-scoring" class="form-control">
+                    <option value="WSS" selected>Weighted Severity Score</option>
+                    <option value="CVSS">CVSS v3.1 Equivalent</option>
+                    <option value="Simple">Simple Finding Count</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Notifications</h3>
+              </div>
+              <div class="card-body">
+                <div class="toggle-list">
+                  <label class="toggle-item">
+                    <div class="toggle-info">
+                      <span class="title">Analysis Completed</span>
+                      <span class="desc">Notify when a simulated scan finishes execution</span>
+                    </div>
+                    <input type="checkbox" checked id="notif-scan-complete">
+                    <span class="toggle-switch"></span>
+                  </label>
+
+                  <label class="toggle-item">
+                    <div class="toggle-info">
+                      <span class="title">Critical Finding Detected</span>
+                      <span class="desc">Trigger alert when a Critical severity flaw is found</span>
+                    </div>
+                    <input type="checkbox" checked id="notif-critical-alert">
+                    <span class="toggle-switch"></span>
+                  </label>
+
+                  <label class="toggle-item">
+                    <div class="toggle-info">
+                      <span class="title">Report Generated</span>
+                      <span class="desc">Show toast when an audit document is prepared</span>
+                    </div>
+                    <input type="checkbox" checked id="notif-report-gen">
+                    <span class="toggle-switch"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="card settings-full-width">
+              <div class="card-header">
+                <h3 class="card-title">Prototype Information</h3>
+              </div>
+              <div class="card-body">
+                <div class="proto-info-grid">
+                  <div class="proto-item">
+                    <span class="label">Application Version:</span>
+                    <span class="val font-mono">1.0 Prototype</span>
+                  </div>
+                  <div class="proto-item">
+                    <span class="label">Environment:</span>
+                    <span class="val font-mono">Demo</span>
+                  </div>
+                  <div class="proto-item">
+                    <span class="label">Backend:</span>
+                    <span class="val font-mono text-orange">Not Connected</span>
+                  </div>
+                  <div class="proto-item">
+                    <span class="label">Architecture:</span>
+                    <span class="val font-mono">Single-Page Pure Frontend</span>
+                  </div>
+                </div>
+
+                <div class="form-actions mt-6">
+                  <button type="button" class="btn btn-primary" onclick="app.saveSettings()">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Settings
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+
+      <!-- FOOTER -->
+      <footer class="app-footer">
+        <div class="footer-content">
+          <p class="footer-title">SecureScope — Web Application Security Analysis & Risk Assessment</p>
+          <p class="footer-disclaimer">Prototype for authorized security testing and educational demonstration.</p>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+
+
+  <!-- VULNERABILITY DETAILS MODAL -->
+  <div class="modal-overlay hidden" id="vuln-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="badge" id="modal-vuln-severity">HIGH</span>
+          <h2 class="modal-title" id="modal-vuln-title">Vulnerability Details</h2>
+        </div>
+        <button class="modal-close-btn" onclick="app.closeVulnModal()" aria-label="Close modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        
+        <div class="demo-banner mb-4">
+          <i class="fa-solid fa-triangle-exclamation"></i> Demo finding — simulated result
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Vulnerability ID</span>
+            <span class="detail-val code" id="modal-vuln-id">VUL-001</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Location / Endpoint</span>
+            <span class="detail-val code" id="modal-vuln-location">/search</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Confidence</span>
+            <span class="detail-val" id="modal-vuln-confidence">High</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Status</span>
+            <span class="detail-val" id="modal-vuln-status">Open</span>
+          </div>
+        </div>
+
+        <div class="detail-section mt-4">
+          <h4>Description</h4>
+          <p id="modal-vuln-desc">Loading description...</p>
+        </div>
+
+        <div class="detail-section mt-4">
+          <h4>Potential Impact</h4>
+          <p id="modal-vuln-impact">Loading impact...</p>
+        </div>
+
+        <div class="detail-section mt-4">
+          <h4>Remediation Guidance</h4>
+          <ul class="remediation-list" id="modal-vuln-remediation">
+            <li>Validate input</li>
+            <li>Encode output</li>
+            <li>Apply appropriate security controls</li>
+            <li>Review server-side validation</li>
+            <li>Follow secure coding practices</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="app.closeVulnModal()">Close</button>
+        <button class="btn btn-primary" onclick="app.toggleVulnStatus()">Toggle Status</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- REPORT PREVIEW MODAL -->
+  <div class="modal-overlay hidden" id="report-modal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">Report Preview</h2>
+          <p class="modal-subtitle">Web Application Security Assessment Document</p>
+        </div>
+        <button class="modal-close-btn" onclick="app.closeReportModal()" aria-label="Close modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body p-0">
+        
+        <!-- Paper-style document container -->
+        <div class="report-paper">
+          
+          <div class="report-header-banner">
+            <div class="brand">
+              <span class="ss-logo">SS</span>
+              <div>
+                <h2>SECURESCOPE</h2>
+                <span>Web Application Security Assessment Report</span>
+              </div>
+            </div>
+            <div class="report-date-badge" id="report-meta-date">20 September 2026</div>
+          </div>
+
+          <div class="report-meta-box">
+            <div class="meta-col">
+              <strong>Application:</strong> <span id="report-meta-app">DemoShop</span>
+            </div>
+            <div class="meta-col">
+              <strong>Assessment Date:</strong> 20 September 2026
+            </div>
+            <div class="meta-col">
+              <strong>Overall Risk:</strong> <span class="badge badge-high" id="report-meta-risk">HIGH</span>
+            </div>
+            <div class="meta-col">
+              <strong>Risk Score:</strong> <span class="text-cyan font-bold" id="report-meta-score">72/100</span>
+            </div>
+          </div>
+
+          <div class="report-section">
+            <h3>Executive Summary</h3>
+            <p>During the automated security assessment, SecureScope identified critical and high risk indicators on target application <strong>DemoShop</strong>. Immediate remediation is recommended to ensure data integrity and prevent unauthorized user context execution.</p>
+          </div>
+
+          <div class="report-section">
+            <h3>Findings Summary</h3>
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>Severity</th>
+                  <th>Count</th>
+                  <th>Impact Level</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="text-critical">Critical</span></td>
+                  <td>2</td>
+                  <td>Severe System Exposure</td>
+                </tr>
+                <tr>
+                  <td><span class="text-high">High</span></td>
+                  <td>4</td>
+                  <td>Significant Data & Session Risk</td>
+                </tr>
+                <tr>
+                  <td><span class="text-medium">Medium</span></td>
+                  <td>5</td>
+                  <td>Moderate Control Bypass</td>
+                </tr>
+                <tr>
+                  <td><span class="text-low">Low</span></td>
+                  <td>3</td>
+                  <td>Informational & Header Gaps</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="report-section">
+            <h3>Risk Distribution</h3>
+            <p>Critical: 2, High: 4, Medium: 5, Low: 3. Calculated Risk Score: 72/100.</p>
+          </div>
+
+          <div class="report-section">
+            <h3>Vulnerability Details</h3>
+            <ul class="report-vuln-list">
+              <li>
+                <strong>VUL-001 (Cross-Site Scripting (XSS)):</strong> High severity reflected output parameter on <code>/search</code> route without contextual output escaping.
+              </li>
+              <li>
+                <strong>VUL-002 (Injection Indicator):</strong> Critical severity unsanitized parameter on <code>/login</code> authentication handler.
+              </li>
+              <li>
+                <strong>VUL-003 (Access-Control Issue):</strong> High severity missing authorization check on <code>/profile</code> object identifier.
+              </li>
+            </ul>
+          </div>
+
+          <div class="report-section">
+            <h3>Remediation Recommendations</h3>
+            <ul class="remediation-list">
+              <li>Validate input at server boundary using strict allow-list sanitization.</li>
+              <li>Encode output according to rendering context (HTML body, attributes, JavaScript).</li>
+              <li>Apply appropriate security controls, including strict Content Security Policy (CSP) headers.</li>
+              <li>Review server-side validation and session authorization tokens.</li>
+              <li>Follow secure coding practices per OWASP Application Security Verification Standard (ASVS).</li>
+            </ul>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="app.closeReportModal()">Close</button>
+        <button class="btn btn-primary" onclick="app.downloadMockReport()">
+          <i class="fa-solid fa-download"></i> Download Report
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- APPLICATION JAVASCRIPT -->
+  <script src="app.js"></script>
+
+</body>
+</html>
