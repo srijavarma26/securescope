@@ -5,9 +5,7 @@
 
 const app = {
   // API Base URL Configuration (relative when served by Flask, absolute otherwise)
-  apiBase: (window.location.protocol === 'http:' || window.location.protocol === 'https:') && window.location.port === '5000'
-    ? ''
-    : 'http://127.0.0.1:5000',
+  apiBase: 'https://securescope-backend-xq7s.onrender.com',
 
   // Application State
   currentView: 'dashboard',
